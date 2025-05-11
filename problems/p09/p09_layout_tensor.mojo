@@ -27,6 +27,22 @@ fn pooling[
     local_i = thread_idx.x
     # FIX ME IN (roughly 10 lines)
 
+    # Load Data
+    if global_i < size:
+        shared[local_i] = a[global_i]
+
+    # Ensure Data is Loaded
+    barrier()
+
+    # Special Case: first element
+    if global_i == 0:
+        out[0] = shared[0]
+    # Special Case: second element
+    elif global_i == 1:
+        out[1] = shared[0] + shared[1]
+    # General Case: Sum of last 3 elements
+    elif 1 < global_i < size:
+        out[global_i] = shared[local_i - 2] + shared[local_i - 1] + shared[local_i]
 
 # ANCHOR_END: pooling_layout_tensor
 
