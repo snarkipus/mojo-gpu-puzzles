@@ -20,7 +20,32 @@ fn dot_product(
     size: Int,
 ):
     # FILL ME IN (roughly 13 lines)
-    ...
+    shared = stack_allocation[
+        TPB * sizeof[dtype](),
+        Scalar[dtype],
+        address_space = AddressSpace.SHARED,
+    ]()
+    global_i = block_dim.x * block_idx.x + thread_idx.x
+    local_i = thread_idx.x
+
+    # Load Data
+    if global_i < size:
+        shared[local_i] = a[global_i] * b[global_i]
+
+    # Ensure Data is Loaded
+    barrier()
+
+    stride = TPB // 2
+    while stride > 0:
+        if local_i < stride:
+            shared[local_i] += shared[local_i + stride]
+
+        barrier()
+        stride //= 2
+
+    # only thread 0 writes the final result
+    if local_i == 0:
+        out[0] = shared[0]
 
 
 # ANCHOR_END: dot_product
