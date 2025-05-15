@@ -72,27 +72,52 @@ You'll need a [compatible GPU](https://docs.modular.com/max/faq#gpu-requirements
    git clone https://github.com/modular/mojo-gpu-puzzles
    cd mojo-gpu-puzzles
    ```
-2. Install `magic` CLI to run the Mojo🔥 programs:
-   ```bash
-   curl -ssL https://magic.modular.com/ | bash
-   ```
-   or update it
-   ```bash
-   magic self-update
-   ```
-3. Start solving puzzles!
+3. Install a package manager to run the Mojo🔥 programs:
+
+    ### Option 1: [`uv`](https://docs.astral.sh/uv/getting-started/installation/) (recommended for users)
+
+    **Install:**
+    ```bash
+    curl -fsSL https://astral.sh/uv/install.sh | sh
+    ```
+
+    **Update:**
+    ```bash
+    uv self update
+    ```
+
+    **Create a virtual environment:**
+    ```bash
+    uv venv && source .venv/bin/activate
+    ```
+
+    ### Option 2: [pixi](https://pixi.sh/latest/#installation) (recommended for contributors)
+
+    **Install:**
+    ```bash
+    curl -fsSL https://pixi.sh/install.sh | sh
+    ```
+
+    **Update:**
+    ```bash
+    pixi self-update
+    ```
+
+4. Start solving puzzles!
 
 ## Development
 
+We use `pixi` for development as it includes `uv` and also supports conda packages (like `mdbook` from the `conda-forge` channel) needed for development workflows.
+
 ```bash
 # Build and serve the book
-magic run book
+pixi run book
 
 # Test solutions on GPU
-magic run tests
+pixi run tests
 
 # Format code
-magic run format
+pixi run format
 ```
 
 ## Contributing

@@ -54,9 +54,26 @@ handle that challenge later.*
 
 To test your solution, run the following command in your terminal:
 
+<div class="code-tabs" data-tab-group="package-manager">
+  <div class="tab-buttons">
+    <button class="tab-button">uv</button>
+    <button class="tab-button">pixi</button>
+  </div>
+  <div class="tab-content">
+
 ```bash
-magic run p10
+uv run poe p10
 ```
+
+  </div>
+  <div class="tab-content">
+
+```bash
+pixi run p10
+```
+
+  </div>
+</div>
 
 Your output will look like this if the puzzle isn't solved yet:
 ```txt

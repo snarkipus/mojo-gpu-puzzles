@@ -8,6 +8,7 @@ from testing import assert_equal
 alias TPB = 15
 alias BLOCKS_PER_GRID = (2, 1)
 
+
 fn conv1d_kernel[
     in_layout: Layout,
     out_layout: Layout,
@@ -96,7 +97,9 @@ struct Conv1DCustomOp:
             )
             # ANCHOR: conv1d_custom_op_solution
             gpu_ctx.enqueue_function[
-                conv1d_kernel[in_layout, out_layout, conv_layout, input_size, conv_size]
+                conv1d_kernel[
+                    in_layout, out_layout, conv_layout, input_size, conv_size
+                ]
             ](
                 out_tensor,
                 input_tensor,

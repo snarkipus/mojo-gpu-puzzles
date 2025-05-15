@@ -6,7 +6,8 @@ platforms = ["linux-64", "osx-arm64"]
 version = "0.0.0"
 
 [tasks]
-format = "mojo format problems solutions"
+install-pre-commit = "pre-commit install"
+format = { cmd="mojo format problems solutions", depends-on = ["install-pre-commit"] }
 
 tests = { cmd = "bash solutions/run.sh" }
 
@@ -72,3 +73,4 @@ bash = ">=5.2.21,<6"
 python = "==3.12"
 manim = ">=0.18.1,<0.19"
 mdbook = ">=0.4.48,<0.5"
+pre-commit = ">=4.2.0,<5"

@@ -19,7 +19,7 @@ fn add_10_shared(
     size: Int,
 ):
     shared = stack_allocation[
-        TPB * sizeof[dtype](),
+        TPB,
         Scalar[dtype],
         address_space = AddressSpace.SHARED,
     ]()

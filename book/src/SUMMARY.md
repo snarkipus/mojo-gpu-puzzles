@@ -1,8 +1,8 @@
 # Summary
 
 # Getting Started
-- [Introduction](./introduction.md)
-- [🧩 Puzzles Usage Guide](./howto.md)
+- [🔥 Introduction](./introduction.md)
+- [🧭 Puzzles Usage Guide](./howto.md)
 
 # Part I: GPU Fundamentals
 - [Puzzle 1: Map](./puzzle_01/puzzle_01.md)

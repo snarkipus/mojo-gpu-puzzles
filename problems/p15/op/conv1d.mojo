@@ -7,6 +7,7 @@ from layout.tensor_builder import LayoutTensorBuild as tb
 alias TPB = 15
 alias BLOCKS_PER_GRID = (2, 1)
 
+
 fn conv1d_kernel[
     in_layout: Layout,
     out_layout: Layout,
@@ -48,6 +49,7 @@ fn conv1d_kernel[
                 local_sum += shared_a[local_i + j] * shared_b[j]
 
         out[global_i] = local_sum
+
 
 # ANCHOR_END: conv1d_kernel
 
@@ -104,5 +106,6 @@ struct Conv1DCustomOp:
             pass
         else:
             raise Error("Unsupported target: " + target)
+
 
 # ANCHOR_END: conv1d_custom_op

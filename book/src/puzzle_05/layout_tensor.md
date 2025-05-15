@@ -42,9 +42,26 @@ The key insight is that `LayoutTensor` allows natural broadcasting through diffe
 
 To test your solution, run the following command in your terminal:
 
+<div class="code-tabs" data-tab-group="package-manager">
+  <div class="tab-buttons">
+    <button class="tab-button">uv</button>
+    <button class="tab-button">pixi</button>
+  </div>
+  <div class="tab-content">
+
 ```bash
-magic run p05_layout_tensor
+uv run poe p05_layout_tensor
 ```
+
+  </div>
+  <div class="tab-content">
+
+```bash
+pixi run p05_layout_tensor
+```
+
+  </div>
+</div>
 
 Your output will look like this if the puzzle isn't solved yet:
 ```txt

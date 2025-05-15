@@ -22,19 +22,71 @@ You'll need a [compatible GPU](https://docs.modular.com/max/faq#gpu-requirements
 
 ### Setting up your environment
 
-[Clone the GitHub repository](https://github.com/modular/mojo-gpu-puzzles) and make sure you have the `magic` CLI installed to be able to run the Mojo programs:
+1. [Clone the GitHub repository](https://github.com/modular/mojo-gpu-puzzles) and navigate to the repository:
 
 ```bash
 # Clone the repository
 git clone https://github.com/modular/mojo-gpu-puzzles
 cd mojo-gpu-puzzles
-
-# Install magic CLI (if not already installed)
-curl -ssL https://magic.modular.com/ | bash
-
-# Or update if already installed
-magic self-update
 ```
+
+2. Install a package manager to run the Mojo🔥 programs:
+
+    #### Option 1: [`uv`](https://docs.astral.sh/uv/getting-started/installation/) (recommended for users)
+
+    **Install:**
+    ```bash
+    curl -fsSL https://astral.sh/uv/install.sh | sh
+    ```
+
+    **Update:**
+    ```bash
+    uv self update
+    ```
+
+    **Create a virtual environment:**
+    ```bash
+    uv venv && source .venv/bin/activate
+    ```
+
+    #### Option 2: [pixi](https://pixi.sh/latest/#installation) (recommended for contributors)
+
+    **Install:**
+    ```bash
+    curl -fsSL https://pixi.sh/install.sh | sh
+    ```
+
+    **Update:**
+    ```bash
+    pixi self-update
+    ```
+
+3. Run the puzzles via `uv` or `pixi` as follows:
+
+<div class="code-tabs" data-tab-group="package-manager">
+  <div class="tab-buttons">
+    <button class="tab-button">uv</button>
+    <button class="tab-button">pixi</button>
+  </div>
+  <div class="tab-content">
+
+```bash
+uv run poe pXX  # Replace XX with the puzzle number
+```
+
+  </div>
+  <div class="tab-content">
+
+```bash
+pixi run pXX  # Replace XX with the puzzle number
+```
+
+  </div>
+</div>
+
+For example, to run puzzle 01:
+- `uv run poe p01` or
+- `pixi run p01`
 
 ### Knowledge prerequisites
 

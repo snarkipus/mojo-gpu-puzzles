@@ -97,9 +97,26 @@ Where `???` should contain your block sums that will be used in the second phase
 
 To test your solution, run the following command in your terminal:
 
+<div class="code-tabs" data-tab-group="package-manager">
+  <div class="tab-buttons">
+    <button class="tab-button">uv</button>
+    <button class="tab-button">pixi</button>
+  </div>
+  <div class="tab-content">
+
 ```bash
-magic run p12 --complete
+uv run poe p12 --complete
 ```
+
+  </div>
+  <div class="tab-content">
+
+```bash
+pixi run p12 --complete
+```
+
+  </div>
+</div>
 
 Your output will look like this if the puzzle isn't solved yet:
 ```txt

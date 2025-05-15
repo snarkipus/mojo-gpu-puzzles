@@ -39,9 +39,26 @@ The key insight is understanding how blocks of threads work together to process 
 
 To test your solution, run the following command in your terminal:
 
+<div class="code-tabs" data-tab-group="package-manager">
+  <div class="tab-buttons">
+    <button class="tab-button">uv</button>
+    <button class="tab-button">pixi</button>
+  </div>
+  <div class="tab-content">
+
 ```bash
-magic run p06
+uv run poe p06
 ```
+
+  </div>
+  <div class="tab-content">
+
+```bash
+pixi run p06
+```
+
+  </div>
+</div>
 
 Your output will look like this if the puzzle isn't solved yet:
 ```txt

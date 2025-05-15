@@ -162,8 +162,8 @@ def main():
         else:
             raise Error("Invalid argument")
 
-        expected = ctx.enqueue_create_host_buffer[dtype](size).enqueue_fill(0)
         ctx.synchronize()
+        expected = ctx.enqueue_create_host_buffer[dtype](size).enqueue_fill(0)
 
         with a.map_to_host() as a_host, b.map_to_host() as b_host:
             for i in range(size):

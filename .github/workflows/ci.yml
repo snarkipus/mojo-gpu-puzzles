@@ -24,7 +24,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/mojoproject.toml') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/pixi.toml') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
 
@@ -33,21 +33,19 @@ jobs:
           path: |
             ~/.modular
             ~/.cache/modular
-          key: ${{ runner.os }}-modular-${{ hashFiles('**/mojoproject.toml') }}
+          key: ${{ runner.os }}-modular-${{ hashFiles('**/pixi.toml') }}
 
-      - name: Install Magic CLI
-        run: |
-          curl -ssL https://magic.modular.com/ | bash
-          . $HOME/.bashrc
-          echo "$HOME/.modular/bin" >> $GITHUB_PATH
-          export PATH="$HOME/.modular/bin:$PATH"
+      - uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          pixi-version: v0.47.0
+          cache: false
+          post-cleanup: false
 
       - name: Build
         shell: bash
         run: |
-          . $HOME/.bashrc
           cd book
-          magic run build-book
+          pixi run build-book
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

@@ -48,9 +48,26 @@ To complete this puzzle, you only need to fill one line to call the `conv1d_kern
 
 You can run the puzzle with:
 
+<div class="code-tabs" data-tab-group="package-manager">
+  <div class="tab-buttons">
+    <button class="tab-button">uv</button>
+    <button class="tab-button">pixi</button>
+  </div>
+  <div class="tab-content">
+
 ```bash
-magic run p15
+uv run poe p15
 ```
+
+  </div>
+  <div class="tab-content">
+
+```bash
+pixi run p15
+```
+
+  </div>
+</div>
 
 When successful, you should see output similar to:
 
@@ -203,8 +220,6 @@ This command:
 3. Produces a binary artifact (`op.mojopkg`) that can be loaded by Python
 
 The package must be placed in a location where MAX Graph can find it, typically in a directory accessible to the Python code.
-
-> In the puzzles repository, this is done via a `magic` task to automate the step. See [mojoproject.toml](../../../mojoproject.toml) for more details.
 
 ### Python integration
 

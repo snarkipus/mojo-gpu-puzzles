@@ -9,12 +9,14 @@ title = "Mojo 🔥 GPU Puzzles"
 additional-css = [
     "theme/css/custom.css",
     "theme/css/highlight.css",
+    "theme/css/tabs.css",
 ]
 additional-js = [
     "theme/mojolang.js",
     "theme/sidebar.js",
     "theme/solution.js",
     "theme/init-amplitude.js",
+    "theme/tabs.js",
 ]
 default-theme = "light"
 preferred-dark-theme = "ayu"
@@ -63,4 +65,3 @@ index = false
 # Enables use of {{#include file.md}} to include other files
 renderers = ["html"]
 some-attribute = "value"
-

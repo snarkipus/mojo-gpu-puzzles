@@ -51,9 +51,26 @@ Thread 2:  a[2] + b[2] → out[2]
 
 To test your solution, run the following command in your terminal:
 
+<div class="code-tabs" data-tab-group="package-manager">
+  <div class="tab-buttons">
+    <button class="tab-button">uv</button>
+    <button class="tab-button">pixi</button>
+  </div>
+  <div class="tab-content">
+
 ```bash
-magic run p02
+uv run poe p02
 ```
+
+  </div>
+  <div class="tab-content">
+
+```bash
+pixi run p02
+```
+
+  </div>
+</div>
 
 Your output will look like this if the puzzle isn't solved yet:
 ```txt

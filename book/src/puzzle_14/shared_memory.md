@@ -58,9 +58,26 @@ B[i,j]: Direct access                  b_shared[local_row, local_col]
 
 To test your solution, run the following command in your terminal:
 
+<div class="code-tabs" data-tab-group="package-manager">
+  <div class="tab-buttons">
+    <button class="tab-button">uv</button>
+    <button class="tab-button">pixi</button>
+  </div>
+  <div class="tab-content">
+
 ```bash
-magic run p14 --single-block
+uv run poe p14 --single-block
 ```
+
+  </div>
+  <div class="tab-content">
+
+```bash
+pixi run p14 --single-block
+```
+
+  </div>
+</div>
 
 Your output will look like this if the puzzle isn't solved yet:
 ```txt
