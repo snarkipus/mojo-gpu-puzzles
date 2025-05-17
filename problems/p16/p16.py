@@ -37,7 +37,7 @@ def softmax(
     print(f"Compiling softmax graph on {device}")
     model = session.load(graph)
     print(f"Executing softmax on {device}")
-    print("="*100)
+    print("=" * 100)
     result = model.execute(input_tensor)[0]
     assert isinstance(result, Tensor)
     return result.to(CPU()) if device == Accelerator() else result
@@ -55,11 +55,21 @@ if __name__ == "__main__":
 
     cpu_result = softmax(input_array, cpu_session, CPU())
     gpu_result = softmax(input_array, gpu_session, Accelerator())
-    print(f"First few softmax results on CPU (custom Mojo kernel): {cpu_result.to_numpy()[:5]}")
-    print(f"First few softmax results on GPU (custom Mojo kernel): {gpu_result.to_numpy()[:5]}")
-    print(f"First few expected results (SciPy calculation): {expected_result[:5]}")
+    print(
+        "First few softmax results on CPU (custom Mojo kernel):"
+        f" {cpu_result.to_numpy()[:5]}"
+    )
+    print(
+        "First few softmax results on GPU (custom Mojo kernel):"
+        f" {gpu_result.to_numpy()[:5]}"
+    )
+    print(
+        f"First few expected results (SciPy calculation): {expected_result[:5]}"
+    )
 
-    np.testing.assert_allclose(cpu_result.to_numpy(), expected_result, rtol=1e-5)
+    np.testing.assert_allclose(
+        cpu_result.to_numpy(), expected_result, rtol=1e-5
+    )
     print("Verification passed: Custom kernel results match SciPy calculation")
 
     total_prob_cpu = np.round(np.sum(cpu_result.to_numpy()), 5)

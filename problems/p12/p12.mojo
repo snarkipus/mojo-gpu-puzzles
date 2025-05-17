@@ -33,44 +33,44 @@ fn prefix_sum_simple[
     if global_i < SIZE:
         shared[local_i] = a[global_i]
 
-#   Threads:       T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
-#   Input array: [ 0    1    2    3    4    5    6    7 ]
-#   shared:      [ 0    1    2    3    4    5    6    7 ]
-#                  ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑
-#                  T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
+    #   Threads:       T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
+    #   Input array: [ 0    1    2    3    4    5    6    7 ]
+    #   shared:      [ 0    1    2    3    4    5    6    7 ]
+    #                  ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑
+    #                  T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
 
     barrier()
 
-#   Offset: +1 (T₁ .. T₇)
-#   Before:      [ 0    1    2    3    4    5    6    7 ]
-#   Add:               +0   +1   +2   +3   +4   +5   +6 
-#                       |    |    |    |    |    |    |
-#   After:       [ 0    1    3    5    7    9   11   13 ]
-#                       ↑    ↑    ↑    ↑    ↑    ↑    ↑
-#                       T₁   T₂   T₃   T₄   T₅   T₆   T₇
-# -------------------------------------------------------
-#   Offset: +2 (T₂ .. T₇)
-#   Before:      [ 0    1    3    5    7    9   11   13 ]
-#   Add:                    +0   +1   +3   +5   +7   +9  
-#                            |    |    |    |    |    |
-#   After:       [ 0    1    3    6   10   14   18   22 ]
-#                            ↑    ↑    ↑    ↑    ↑    ↑
-#                            T₂   T₃   T₄   T₅   T₆   T₇
-# -------------------------------------------------------
-#   Offset: +4 (T₄ .. T₇)
-#   Before:      [ 0    1    3    6   10   14   18   22 ]
-#   Add:                              +0   +1   +3   +6
-#                                      |    |    |    |
-#   After:       [ 0    1    3    6   10   15   21   28 ]
-#                                      ↑    ↑    ↑    ↑
-#                                      T₄   T₅   T₆   T₇
-# -------------------------------------------------------
-#   Final Output:
-#   Threads:       T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
-#   global_i:      0    1    2    3    4    5    6    7 
-#   out[]:       [ 0    1    3    6   10   15   21   28 ]
-#                  ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑
-#                  T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
+    #   Offset: +1 (T₁ .. T₇)
+    #   Before:      [ 0    1    2    3    4    5    6    7 ]
+    #   Add:               +0   +1   +2   +3   +4   +5   +6
+    #                       |    |    |    |    |    |    |
+    #   After:       [ 0    1    3    5    7    9   11   13 ]
+    #                       ↑    ↑    ↑    ↑    ↑    ↑    ↑
+    #                       T₁   T₂   T₃   T₄   T₅   T₆   T₇
+    # -------------------------------------------------------
+    #   Offset: +2 (T₂ .. T₇)
+    #   Before:      [ 0    1    3    5    7    9   11   13 ]
+    #   Add:                    +0   +1   +3   +5   +7   +9
+    #                            |    |    |    |    |    |
+    #   After:       [ 0    1    3    6   10   14   18   22 ]
+    #                            ↑    ↑    ↑    ↑    ↑    ↑
+    #                            T₂   T₃   T₄   T₅   T₆   T₇
+    # -------------------------------------------------------
+    #   Offset: +4 (T₄ .. T₇)
+    #   Before:      [ 0    1    3    6   10   14   18   22 ]
+    #   Add:                              +0   +1   +3   +6
+    #                                      |    |    |    |
+    #   After:       [ 0    1    3    6   10   15   21   28 ]
+    #                                      ↑    ↑    ↑    ↑
+    #                                      T₄   T₅   T₆   T₇
+    # -------------------------------------------------------
+    #   Final Output:
+    #   Threads:       T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
+    #   global_i:      0    1    2    3    4    5    6    7
+    #   out[]:       [ 0    1    3    6   10   15   21   28 ]
+    #                  ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑
+    #                  T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
 
     offset = 1
 
@@ -83,6 +83,7 @@ fn prefix_sum_simple[
 
     if global_i < SIZE:
         out[global_i] = shared[local_i]
+
 
 # ANCHOR_END: prefix_sum_simple
 
@@ -107,6 +108,30 @@ fn prefix_sum_local_phase[
     local_i = thread_idx.x
     # FILL ME IN (roughly 14 lines)
 
+    # Allocate shared memory using tensor builder
+    shared = tb[dtype]().row_major[TPB]().shared().alloc()
+
+    # Load Data
+    if global_i < size:
+        shared[local_i] = a[global_i]
+
+    barrier()
+
+    offset = 1
+
+    for _ in range(Int(log2(Scalar[dtype](TPB)))):
+        if local_i >= offset and local_i < TPB:
+            shared[local_i] += shared[local_i - offset]
+
+        barrier()
+        offset *= 2
+
+    if global_i < size:
+        out[global_i] = shared[local_i]
+
+    if local_i == TPB - 1:
+        out[size + block_idx.x] = shared[local_i]
+
 
 # Kernel 2: Add block sums to their respective blocks
 fn prefix_sum_block_sum_phase[
@@ -114,6 +139,10 @@ fn prefix_sum_block_sum_phase[
 ](out: LayoutTensor[mut=False, dtype, layout], size: Int):
     global_i = block_dim.x * block_idx.x + thread_idx.x
     # FILL ME IN (roughly 3 lines)
+
+    if block_idx.x > 0 and global_i < size:
+        prev_block_sum = out[size + block_idx.x - 1]
+        out[global_i] += prev_block_sum
 
 
 # ANCHOR_END: prefix_sum_complete
