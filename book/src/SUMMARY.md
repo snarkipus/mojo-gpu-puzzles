@@ -47,9 +47,9 @@
 
 # Part III: Interfacing with Python via MAX Graph Custom Ops
 - [Puzzle 15: 1D Convolution Op](./puzzle_15/puzzle_15.md)
-- [Puzzle 16: Softmax Op]()
+- [Puzzle 16: Softmax Op](./puzzle_16/puzzle_16.md)
 - [Puzzle 17: Attention Op]()
-- [🎯 Bonus Challenges]()
+- [🎯 Bonus Challenges](./bonuses/part3.md)
 
 # Part IV: Advanced GPU Algorithms
 - [Puzzle 18: 2D Convolution Op]()

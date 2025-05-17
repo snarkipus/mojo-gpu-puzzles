@@ -96,7 +96,7 @@ The solution is:
 ```mojo
 {{#include ../../../solutions/p15/op/conv1d.mojo:conv1d_custom_op_solution}}
 ```
-
+<div class="solution-explanation">
 This single line does several important things:
 
 1. Calls [enqueue_function](https://docs.modular.com/mojo/stdlib/gpu/host/device_context/DeviceContext/#enqueue_function) on the GPU context (`gpu_ctx` is of type [DeviceContext](https://docs.modular.com/mojo/stdlib/gpu/host/device_context/DeviceContext/)) to schedule our kernel execution

@@ -65,7 +65,11 @@ viz13 = "cd book/src/puzzle_13 && python puzzle_13_viz.py"
 p14 = "mojo problems/p14/p14.mojo"
 viz14 = "cd book/src/puzzle_14 && python puzzle_14_viz.py"
 
-p15 = "cd problems/p15 && mojo package op -o op.mojopkg && python p15.py"
+p15 = "mojo package problems/p15/op -o problems/p15/op.mojopkg && python problems/p15/p15.py"
+
+p16-package = "mojo package problems/p16/op -o problems/p16/op.mojopkg"
+p16-test-kernels = { cmd = "mojo test problems/p16", depends-on = ["p16-package"] }
+p16 = { cmd = "python problems/p16/p16.py", depends-on = ["p16-package"] }
 
 [dependencies]
 max = "*"
