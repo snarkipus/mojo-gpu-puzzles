@@ -26,6 +26,63 @@ fn prefix_sum_simple[
     local_i = thread_idx.x
     # FILL ME IN (roughly 12 lines)
 
+    # Allocate shared memory using tensor builder
+    shared = tb[dtype]().row_major[TPB]().shared().alloc()
+
+    # Load Data
+    if global_i < SIZE:
+        shared[local_i] = a[global_i]
+
+#   Threads:       T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
+#   Input array: [ 0    1    2    3    4    5    6    7 ]
+#   shared:      [ 0    1    2    3    4    5    6    7 ]
+#                  ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑
+#                  T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
+
+    barrier()
+
+#   Offset: +1 (T₁ .. T₇)
+#   Before:      [ 0    1    2    3    4    5    6    7 ]
+#   Add:               +0   +1   +2   +3   +4   +5   +6 
+#                       |    |    |    |    |    |    |
+#   After:       [ 0    1    3    5    7    9   11   13 ]
+#                       ↑    ↑    ↑    ↑    ↑    ↑    ↑
+#                       T₁   T₂   T₃   T₄   T₅   T₆   T₇
+# -------------------------------------------------------
+#   Offset: +2 (T₂ .. T₇)
+#   Before:      [ 0    1    3    5    7    9   11   13 ]
+#   Add:                    +0   +1   +3   +5   +7   +9  
+#                            |    |    |    |    |    |
+#   After:       [ 0    1    3    6   10   14   18   22 ]
+#                            ↑    ↑    ↑    ↑    ↑    ↑
+#                            T₂   T₃   T₄   T₅   T₆   T₇
+# -------------------------------------------------------
+#   Offset: +4 (T₄ .. T₇)
+#   Before:      [ 0    1    3    6   10   14   18   22 ]
+#   Add:                              +0   +1   +3   +6
+#                                      |    |    |    |
+#   After:       [ 0    1    3    6   10   15   21   28 ]
+#                                      ↑    ↑    ↑    ↑
+#                                      T₄   T₅   T₆   T₇
+# -------------------------------------------------------
+#   Final Output:
+#   Threads:       T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
+#   global_i:      0    1    2    3    4    5    6    7 
+#   out[]:       [ 0    1    3    6   10   15   21   28 ]
+#                  ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑
+#                  T₀   T₁   T₂   T₃   T₄   T₅   T₆   T₇
+
+    offset = 1
+
+    for _ in range(Int(log2(Scalar[dtype](TPB)))):
+        if local_i >= offset and local_i < SIZE:
+            shared[local_i] += shared[local_i - offset]
+
+        barrier()
+        offset *= 2
+
+    if global_i < SIZE:
+        out[global_i] = shared[local_i]
 
 # ANCHOR_END: prefix_sum_simple
 
