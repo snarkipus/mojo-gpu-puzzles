@@ -28,12 +28,6 @@ fn conv_1d_simple[
     local_i = thread_idx.x
     # FILL ME IN (roughly 14 lines)
 
-<<<<<<< HEAD
-=======
-    print("block_dim.x:", block_dim.x)
-    print("block_idx.x:", block_idx.x)
-    print("thread_idx.x:", thread_idx.x)
-
     # Allocate shared memory using tensor builder
     shared_a = tb[dtype]().row_major[SIZE]().shared().alloc()
     shared_b = tb[dtype]().row_major[CONV]().shared().alloc()
@@ -61,7 +55,6 @@ fn conv_1d_simple[
 
         out[global_i] = local_sum
 
->>>>>>> e646760 (completed puzzle 11)
 
 # ANCHOR_END: conv_1d_simple
 
@@ -83,8 +76,6 @@ fn conv_1d_block_boundary[
     local_i = thread_idx.x
     # FILL ME IN (roughly 18 lines)
 
-<<<<<<< HEAD
-=======
     # Allocate shared memory using tensor builder
     shared_a = (
         tb[dtype]().row_major[TPB + CONV_2 - 1]().shared().alloc()
@@ -124,7 +115,6 @@ fn conv_1d_block_boundary[
 
         out[global_i] = local_sum
 
->>>>>>> e646760 (completed puzzle 11)
 
 # ANCHOR_END: conv_1d_block_boundary
 
