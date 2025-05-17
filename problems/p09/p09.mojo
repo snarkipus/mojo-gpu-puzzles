@@ -42,7 +42,10 @@ fn pooling(
         out[1] = shared[0] + shared[1]
     # General Case: Sum of last 3 elements
     elif 1 < global_i < size:
-        out[global_i] = shared[local_i - 2] + shared[local_i - 1] + shared[local_i]
+        out[global_i] = (
+            shared[local_i - 2] + shared[local_i - 1] + shared[local_i]
+        )
+
 
 # ANCHOR_END: pooling
 

@@ -20,6 +20,7 @@ fn add_10_blocks(
     if i < size:
         out[i] = a[i] + 10
 
+
 # ANCHOR_END: add_10_blocks
 
 

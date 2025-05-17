@@ -28,6 +28,40 @@ fn conv_1d_simple[
     local_i = thread_idx.x
     # FILL ME IN (roughly 14 lines)
 
+<<<<<<< HEAD
+=======
+    print("block_dim.x:", block_dim.x)
+    print("block_idx.x:", block_idx.x)
+    print("thread_idx.x:", thread_idx.x)
+
+    # Allocate shared memory using tensor builder
+    shared_a = tb[dtype]().row_major[SIZE]().shared().alloc()
+    shared_b = tb[dtype]().row_major[CONV]().shared().alloc()
+
+    # Load Data
+    if global_i < SIZE:
+        shared_a[local_i] = a[global_i]
+
+    if global_i < CONV:
+        shared_b[local_i] = b[global_i]
+
+    # Ensure Data is Loaded
+    barrier()
+
+    if global_i < SIZE:
+        var local_sum: out.element_type = 0
+
+        #          CONV-1
+        # out[i] =   ∑    a[i+j] * b[j]
+        #           j=0
+        @parameter
+        for j in range(CONV):
+            if local_i + j < SIZE:
+                local_sum += shared_a[global_i + j] * shared_b[j]
+
+        out[global_i] = local_sum
+
+>>>>>>> e646760 (completed puzzle 11)
 
 # ANCHOR_END: conv_1d_simple
 
@@ -49,6 +83,48 @@ fn conv_1d_block_boundary[
     local_i = thread_idx.x
     # FILL ME IN (roughly 18 lines)
 
+<<<<<<< HEAD
+=======
+    # Allocate shared memory using tensor builder
+    shared_a = (
+        tb[dtype]().row_major[TPB + CONV_2 - 1]().shared().alloc()
+    )  # padded for convolution
+    shared_b = tb[dtype]().row_major[CONV_2]().shared().alloc()
+
+    # Load Data
+
+    # For Block 0 & Block 1:  a[0:10] => a_shared[0:10]
+    if global_i < SIZE_2:
+        shared_a[local_i] = a[global_i]
+
+    # For Block 0: a[8:11] => a_shared[0:6]
+    if local_i < CONV_2 - 1:
+        next_idx = global_i + TPB
+        if (
+            next_idx < SIZE_2
+        ):  # check if we are in Block 0 (i.e., block_idx.x == 0)
+            shared_a[local_i + TPB] = a[next_idx]
+
+    if local_i < CONV_2:
+        shared_b[local_i] = b[local_i]
+
+    # Ensure Data is Loaded
+    barrier()
+
+    if global_i < SIZE_2:
+        var local_sum: out.element_type = 0
+
+        #          CONV-1
+        # out[i] =   ∑    a[i+j] * b[j]
+        #           j=0
+        @parameter
+        for j in range(CONV_2):
+            if local_i + j < TPB + CONV_2 - 1:
+                local_sum += shared_a[local_i + j] * shared_b[j]
+
+        out[global_i] = local_sum
+
+>>>>>>> e646760 (completed puzzle 11)
 
 # ANCHOR_END: conv_1d_block_boundary
 

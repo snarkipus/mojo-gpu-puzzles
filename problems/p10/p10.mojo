@@ -13,6 +13,9 @@ alias THREADS_PER_BLOCK = (SIZE, 1)
 alias dtype = DType.float32
 
 
+#           n-1
+# a · b =    Σ    a[i] * b[i]
+#           i=0
 fn dot_product(
     out: UnsafePointer[Scalar[dtype]],
     a: UnsafePointer[Scalar[dtype]],
@@ -35,6 +38,7 @@ fn dot_product(
     # Ensure Data is Loaded
     barrier()
 
+    # Parallel Reduction Algorithm
     stride = TPB // 2
     while stride > 0:
         if local_i < stride:
