@@ -27,6 +27,35 @@ fn naive_matmul[
     col = block_dim.x * block_idx.x + thread_idx.x
     # FILL ME IN (roughly 6 lines)
 
+    # Allocate shared memory using tensor builder
+    a_shared = tb[dtype]().row_major[TPB, TPB]().shared().alloc()
+    b_shared = tb[dtype]().row_major[TPB, TPB]().shared().alloc()
+    temp_products = tb[dtype]().row_major[SIZE, SIZE]().shared().alloc().fill(0)
+
+    # Load Data
+    if row < SIZE and col < SIZE:
+        a_shared[row, col] = a[row, col]
+        b_shared[row, col] = b[row, col]
+    else:
+        a_shared[row, col] = 0
+        b_shared[row, col] = 0
+
+    # Synchronize threads
+    barrier()
+
+    # Perform multiplication
+    @parameter
+    for k in range(SIZE):
+        if row < SIZE and col < SIZE:
+            temp_products[row, col] += a_shared[row, k] * b_shared[k, col]
+
+    # Synchronize threads
+    barrier()
+
+    # Write result to global memory
+    if row < SIZE and col < SIZE:
+        out[row, col] = temp_products[row, col]
+
 
 # ANCHOR_END: naive_matmul
 
@@ -44,6 +73,29 @@ fn single_block_matmul[
     local_row = thread_idx.y
     local_col = thread_idx.x
     # FILL ME IN (roughly 12 lines)
+
+    # Allocate shared memory using tensor builder
+    a_shared = tb[dtype]().row_major[SIZE, SIZE]().shared().alloc()
+    b_shared = tb[dtype]().row_major[SIZE, SIZE]().shared().alloc()
+
+    # Load Data
+    if row < SIZE and col < SIZE:
+        a_shared[local_row, local_col] = a[row, col]
+        b_shared[local_row, local_col] = b[row, col]
+
+    # Synchronize threads
+    barrier()
+
+    # Perform multiplication
+    if row < SIZE and col < SIZE:
+        var acc: out.element_type = 0
+
+        @parameter
+        for k in range(SIZE):
+            if row < SIZE and col < SIZE:
+                acc += a_shared[local_row, k] * b_shared[k, local_col]
+
+        out[row, col] = acc
 
 
 # ANCHOR_END: single_block_matmul
@@ -64,9 +116,55 @@ fn matmul_tiled[
 ):
     local_row = thread_idx.x
     local_col = thread_idx.y
-    global_row = block_idx.x * TPB + local_row
-    global_col = block_idx.y * TPB + local_col
+    tiled_row = block_idx.x * TPB + local_row
+    tiled_col = block_idx.y * TPB + local_col
     # FILL ME IN (roughly 20 lines)
+
+    # Allocate shared memory using tensor builder
+    a_shared = tb[dtype]().row_major[TPB, TPB]().shared().alloc()
+    b_shared = tb[dtype]().row_major[TPB, TPB]().shared().alloc()
+
+    # Initialize accumulator
+    var acc: out.element_type = 0
+
+    # Load Tile Data
+    @parameter
+    for tile in range((size + TPB - 1) // TPB):
+        # Reset Shared Memory
+        if local_row < TPB and local_col < TPB:
+            a_shared[local_row, local_col] = 0
+            b_shared[local_row, local_col] = 0
+
+        barrier()
+
+        # Load A Tile: A[...] fixed global row, column determined by tile
+        if tiled_row < size and (tile * TPB + local_col) < size:
+            a_shared[local_row, local_col] = a[
+                tiled_row, tile * TPB + local_col
+            ]
+
+        # Load B Tile: B[...]^T row determined by tile, fixed global column
+        if (tile * TPB + local_row) < size and tiled_col < size:
+            b_shared[local_row, local_col] = b[
+                tile * TPB + local_row, tiled_col
+            ]
+
+        # Synchronize threads
+        barrier()
+
+        # Perform Tile Multiplication
+        if tiled_row < size and tiled_col < size:
+
+            @parameter
+            for k in range(TPB):
+                acc += a_shared[local_row, k] * b_shared[k, local_col]
+
+        # Synchronize threads
+        barrier()
+
+    # Write result to global memory
+    if tiled_row < size and tiled_col < size:
+        out[tiled_row, tiled_col] = acc
 
 
 # ANCHOR_END: matmul_tiled

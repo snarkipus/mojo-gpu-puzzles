@@ -112,6 +112,7 @@ fn prefix_sum_local_phase[
     shared = tb[dtype]().row_major[TPB]().shared().alloc()
 
     # Load Data
+    # note: still magical to me that 'shared' is self-aware of its block locality
     if global_i < size:
         shared[local_i] = a[global_i]
 
@@ -119,6 +120,7 @@ fn prefix_sum_local_phase[
 
     offset = 1
 
+    # Calculates both blocks at the same time
     for _ in range(Int(log2(Scalar[dtype](TPB)))):
         if local_i >= offset and local_i < TPB:
             shared[local_i] += shared[local_i - offset]
@@ -126,9 +128,11 @@ fn prefix_sum_local_phase[
         barrier()
         offset *= 2
 
+    # Store block prefix sums in out
     if global_i < size:
         out[global_i] = shared[local_i]
 
+    # Store block sum in out[size + block_idx.x] (i.e., last two elements)
     if local_i == TPB - 1:
         out[size + block_idx.x] = shared[local_i]
 
@@ -140,6 +144,7 @@ fn prefix_sum_block_sum_phase[
     global_i = block_dim.x * block_idx.x + thread_idx.x
     # FILL ME IN (roughly 3 lines)
 
+    # Add Block 0 sum to Block 1
     if block_idx.x > 0 and global_i < size:
         prev_block_sum = out[size + block_idx.x - 1]
         out[global_i] += prev_block_sum
