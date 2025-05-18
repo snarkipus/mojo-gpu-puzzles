@@ -30,6 +30,32 @@ fn axis_sum[
     batch = block_idx.y
     # FILL ME IN (roughly 15 lines)
 
+    # Allocate shared memory using tensor builder
+    cache = tb[dtype]().row_major[TPB]().shared().alloc()
+
+    # Load Data
+    if local_i < size:
+        cache[local_i] = a[batch, local_i]
+    else:
+        cache[local_i] = 0
+
+    # Synchronize threads
+    barrier()
+
+    # Perform reduction
+    stride = TPB // 2
+
+    while stride > 0:
+        if local_i < stride:
+            cache[local_i] += cache[local_i + stride]
+
+        barrier()
+        stride //= 2
+
+    # Write result to global memory
+    if local_i == 0:
+        out[batch, 0] = cache[0]
+
 
 # ANCHOR_END: axis_sum
 
