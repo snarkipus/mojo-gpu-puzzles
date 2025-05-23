@@ -25,8 +25,51 @@ fn softmax_gpu_kernel[
     out: LayoutTensor[mut=True, dtype, layout],
     input: LayoutTensor[mut=False, dtype, layout],
 ):
-    # FILL IN (roughly 31 lines)
-    ...
+    shared_max = tb[dtype]().row_major[TPB]().shared().alloc()
+    shared_sum = tb[dtype]().row_major[TPB]().shared().alloc()
+    global_i = block_dim.x * block_idx.x + thread_idx.x
+    local_i = thread_idx.x
+
+    var thread_max: Scalar[dtype] = min_finite[dtype]()
+    if global_i < input_size:
+        thread_max = rebind[Scalar[dtype]](input[global_i])
+
+    shared_max[local_i] = thread_max
+    barrier()
+
+    # Parallel reduction to find max
+    stride = TPB // 2
+    while stride > 0:
+        if local_i < stride:
+            shared_max[local_i] = max(
+                shared_max[local_i], shared_max[local_i + stride]
+            )
+        barrier()
+        stride = stride // 2
+
+    block_max = shared_max[0]
+
+    var exp_val: Scalar[dtype] = 0.0
+    if global_i < input_size:
+        exp_val = rebind[Scalar[dtype]](exp(input[global_i] - block_max))
+        out[global_i] = exp_val
+
+    shared_sum[local_i] = exp_val
+    barrier()
+
+    # Parallel reduction for sum
+    stride = TPB // 2
+    while stride > 0:
+        if local_i < stride:
+            shared_sum[local_i] += shared_sum[local_i + stride]
+        barrier()
+        stride = stride // 2
+
+    block_sum = shared_sum[0]
+
+    # Normalize by sum
+    if global_i < input_size:
+        out[global_i] = out[global_i] / block_sum
 
 
 # ANCHOR_END: softmax_gpu_kernel
@@ -41,8 +84,18 @@ fn softmax_cpu_kernel[
     out: LayoutTensor[dtype, layout, MutableAnyOrigin],
     input: LayoutTensor[dtype, layout, MutableAnyOrigin],
 ):
-    # FILL IN (roughly 10 lines)
-    ...
+    var max_val: Scalar[dtype] = min_finite[dtype]()
+    for i in range(input_size):
+        max_val = max(max_val, rebind[Scalar[dtype]](input[i]))
+
+    var sum_exp: Scalar[dtype] = 0.0
+    for i in range(input_size):
+        var exp_val = rebind[Scalar[dtype]](exp(input[i] - max_val))
+        out[i] = exp_val
+        sum_exp += exp_val
+
+    for i in range(input_size):
+        out[i] = out[i] / sum_exp
 
 
 # ANCHOR_END: softmax_cpu_kernel
