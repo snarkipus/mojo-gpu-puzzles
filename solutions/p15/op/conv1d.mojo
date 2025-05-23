@@ -35,6 +35,10 @@ fn conv1d_kernel[
         next_idx = global_i + TPB
         if next_idx < input_size:
             shared_a[TPB + local_i] = input[next_idx]
+        else:
+            # Initialize out-of-bounds elements to 0 to avoid reading from uninitialized memory
+            # which is an undefined behavior
+            shared_a[TPB + local_i] = 0
 
     if local_i < conv_size:
         shared_b[local_i] = kernel[local_i]
@@ -104,8 +108,6 @@ struct Conv1DCustomOp:
                 out_tensor,
                 input_tensor,
                 kernel_tensor,
-                input_size,
-                conv_size,
                 grid_dim=BLOCKS_PER_GRID,
                 block_dim=(TPB, 1),
             )

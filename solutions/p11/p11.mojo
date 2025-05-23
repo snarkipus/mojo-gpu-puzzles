@@ -95,6 +95,10 @@ fn conv_1d_block_boundary[
         next_idx = global_i + TPB
         if next_idx < SIZE_2:
             shared_a[TPB + local_i] = a[next_idx]
+        else:
+            # Initialize out-of-bounds elements to 0 to avoid reading from uninitialized memory
+            # which is an undefined behavior
+            shared_a[TPB + local_i] = 0
 
     if local_i < CONV_2:
         shared_b[local_i] = b[local_i]
@@ -132,27 +136,33 @@ def main():
 
         if argv()[1] == "--simple":
             var out_tensor = LayoutTensor[mut=False, dtype, out_layout](
-                    out.unsafe_ptr()
-                    )
-            var a_tensor = LayoutTensor[mut=False, dtype, in_layout](a.unsafe_ptr())
-            var b_tensor = LayoutTensor[mut=False, dtype, conv_layout](b.unsafe_ptr())
+                out.unsafe_ptr()
+            )
+            var a_tensor = LayoutTensor[mut=False, dtype, in_layout](
+                a.unsafe_ptr()
+            )
+            var b_tensor = LayoutTensor[mut=False, dtype, conv_layout](
+                b.unsafe_ptr()
+            )
             ctx.enqueue_function[
                 conv_1d_simple[in_layout, out_layout, conv_layout]
             ](
                 out_tensor,
                 a_tensor,
                 b_tensor,
-                size,
-                conv,
                 grid_dim=BLOCKS_PER_GRID,
                 block_dim=THREADS_PER_BLOCK,
             )
         elif argv()[1] == "--block-boundary":
             var out_tensor = LayoutTensor[mut=False, dtype, out_2_layout](
-                    out.unsafe_ptr()
-                    )
-            var a_tensor = LayoutTensor[mut=False, dtype, in_2_layout](a.unsafe_ptr())
-            var b_tensor = LayoutTensor[mut=False, dtype, conv_2_layout](b.unsafe_ptr())
+                out.unsafe_ptr()
+            )
+            var a_tensor = LayoutTensor[mut=False, dtype, in_2_layout](
+                a.unsafe_ptr()
+            )
+            var b_tensor = LayoutTensor[mut=False, dtype, conv_2_layout](
+                b.unsafe_ptr()
+            )
             ctx.enqueue_function[
                 conv_1d_block_boundary[
                     in_2_layout, out_2_layout, conv_2_layout, dtype
@@ -161,8 +171,6 @@ def main():
                 out_tensor,
                 a_tensor,
                 b_tensor,
-                size,
-                conv,
                 grid_dim=BLOCKS_PER_GRID_2,
                 block_dim=THREADS_PER_BLOCK_2,
             )

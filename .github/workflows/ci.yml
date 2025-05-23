@@ -11,8 +11,7 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    environment: VERCEL
+    runs-on: github-gpu
     steps:
       - uses: actions/checkout@v4
 
@@ -40,6 +39,11 @@ jobs:
           pixi-version: v0.47.0
           cache: false
           post-cleanup: false
+
+      - name: Tests
+        shell: bash
+        run: |
+          pixi run tests
 
       - name: Build
         shell: bash
